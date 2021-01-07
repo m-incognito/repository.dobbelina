@@ -34,14 +34,11 @@ def get_content(url):
 
         # The page is only available from the Czech Republic. Use a free czech proxy if page is not displayed correctly
         if(re.compile('item--external-button', re.DOTALL | re.IGNORECASE).search(page_content)):
-            katedrala_page = requests.get('https://www.katedrala.cz/').text
-
-            match = re.compile('<form name="URLform" action="(.*?)"', re.DOTALL | re.IGNORECASE).search(katedrala_page)
-
-            if(match):
-                post_action = match.group(1)
-
-                return utils.getHtml(post_action, data={ "URL": url })
+            return utils.getHtml('http://prx.afkcz.eu/prx/index.php', 
+                data = {
+                    "q": "https://freevideo.cz",
+                    "hl[remove_scripts]": "on",
+                })
         else:
             return page_content
     else:
@@ -62,6 +59,8 @@ def List(url):
     if(re.search('<div class="no-search-results">', listhtml, re.DOTALL | re.IGNORECASE)):
         xbmcplugin.endOfDirectory(utils.addon_handle)
         return
+
+    listhtml = listhtml.split("<!-- VIDEOS -->")[1]
 
     match = re.compile('class="video video-preview".*?'
     '<a href="([^"]+)".*?'
